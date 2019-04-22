@@ -19,11 +19,19 @@ def return404():
 def callback():
     l = request.json
 
-    if "user_id" not in l or "nickname" not in l:
-        
+    if "user_id" not in l or "password" not in l:
         return jsonify(err1), 400
     
-    return str(l)
+    users.append(l)
+
+    mes = {
+        "message": "Account successfully created",
+        "user": {
+            "user_id": l["user_id"],
+            "nickname": l["user_id"]
+        }
+    }
+    return jsonify(mes), 200
 
 
 if __name__ == "__main__":
