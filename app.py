@@ -20,8 +20,8 @@ def callback():
     l = request.json
 
     if "user_id" not in l or "nickname" not in l:
-        abort(400)
-        return jsonify(err1)
+        
+        return jsonify(err1), 400
     
     return str(l)
 
