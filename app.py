@@ -1,57 +1,59 @@
 import os
 import sys
-import json
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort
 
-
-users = []
+from linebot import (
+    LineBotApi, WebhookHandler
+)
+from linebot.exceptions import (
+    InvalidSignatureError
+)
+from linebot.models import (
+    MessageEvent, TextMessage, TextSendMessage,
+)
 
 app = Flask(__name__)
 
+# 環境変数からchannel_secret・channel_access_tokenを取得
+channel_secret = os.environ['LINE_CHANNEL_SECRET']
+channel_access_token = os.environ['LINE_CHANNEL_ACCESS_TOKEN']
+
+if channel_secret is None:
+    print('Specify LINE_CHANNEL_SECRET as environment variable.')
+    sys.exit(1)
+if channel_access_token is None:
+    print('Specify LINE_CHANNEL_ACCESS_TOKEN as environment variable.')
+    sys.exit(1)
+
+line_bot_api = LineBotApi(channel_access_token)
+handler = WebhookHandler(channel_secret)
+
 @app.route("/")
-def return404():
-    abort(404)
-#def hello_world():
-#    return "hello world!"
+def hello_world():
+    return "hello world!"
 
-@app.route("/signup", methods=['POST'])
-def signup():
-    l = request.json
+@app.route("/callback", methods=['POST'])
+def callback():
+    # get X-Line-Signature header value
+    signature = request.headers['X-Line-Signature']
 
-    mes = {
-        "message": "Account creation failed",
-        "cause": "required user_id and password"
-        }
+    # get request body as text
+    body = request.get_data(as_text=True)
+    app.logger.info("Request body: " + body)
 
-    if l == []:
-        return jsonify(mes), 400
-    if "user_id" not in l or "password" not in l:
-        return jsonify(mes), 400
-    
-    for u in users:
-        if u["user_id"] == l["user_id"]:
-            mes = {
-                "message": "Account creation failed",
-                "cause": "already same user_id is used"
-            }
-            return jsonify(mes), 400
+    # handle webhook body
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        abort(400)
 
-    users.append(l)
+    return 'OK'
 
-    mes = {
-        "message": "Account successfully created",
-        "user": {
-            "user_id": l["user_id"],
-            "nickname": l["user_id"]
-        }
-    }
-    return jsonify(mes), 200
-
-@app.route("/users/<userid>", methods=['GET'])
-def getuser(userid):
-    return userid
-
-
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=event.message.text))
 
 if __name__ == "__main__":
     app.run()
