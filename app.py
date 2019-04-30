@@ -17,10 +17,34 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/sample.db"
 db = SQLAlchemy(app)
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+    def __init__(self, username, email):
+        self.username = username
+        self.email = email
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+
+class Word(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    word = db.Column(db.String(120))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __init__(self, word, user_id):
+        self.word = word
+        self.user_id = user_id
+    
+    def __repr__(self):
+        return '<Word %r>' % self.word
+
 # 環境変数からchannel_secret・channel_access_tokenを取得
 channel_secret = 'f0c75eb6d5f5d8775ac3a4c4c1e5d1b5'
 channel_access_token = 'PEtbobZiK/ek6VlUsdkhYdbvEDWgx6VZmkDJUS8oaszqOPm0MbFYVz6uCvbD8U8A3FBK7fx73Zqx3xbWKPR71cIUb/aIcPbzZDT3TxnYf2AR3gDryB36Oza47XzwrTwRzoSfbVSjiP3WSvXf+jT38AdB04t89/1O/w1cDnyilFU='
-#os.environ['LINE_CHANNEL_ACCESS_TOKEN']
+#os.environ['CHANNEL_ACCESS_TOKEN']
 
 
 if channel_secret is None:
@@ -35,7 +59,12 @@ handler = WebhookHandler(channel_secret)
 
 @app.route("/")
 def hello_world():
-    return "hello world!"
+    name = 'Abe Harukasu'
+    email = 'hoge@hoge.com'
+    reg = User(name, email)
+    db.session.add(reg)
+    db.session.commit()
+    return User.query.all()
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -58,7 +87,6 @@ def callback():
 def handle_message(event):
     text = event.message.text
     if text == "単語登録":
-#        voc_add = True
         line_bot_api.reply_message(
            event.reply_token,
             TextSendMessage(text="登録したい単語を教えて！"))
