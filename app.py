@@ -1,6 +1,7 @@
 import os
 import sys
 from flask import Flask, request, abort
+from flask_sqlalchemy import SQLAlchemy
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -13,14 +14,14 @@ from linebot.models import (
 )
 
 app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/sample.db"
+db = SQLAlchemy(app)
 
 # 環境変数からchannel_secret・channel_access_tokenを取得
 channel_secret = 'f0c75eb6d5f5d8775ac3a4c4c1e5d1b5'
 channel_access_token = 'PEtbobZiK/ek6VlUsdkhYdbvEDWgx6VZmkDJUS8oaszqOPm0MbFYVz6uCvbD8U8A3FBK7fx73Zqx3xbWKPR71cIUb/aIcPbzZDT3TxnYf2AR3gDryB36Oza47XzwrTwRzoSfbVSjiP3WSvXf+jT38AdB04t89/1O/w1cDnyilFU='
 #os.environ['LINE_CHANNEL_ACCESS_TOKEN']
 
-voc_list = []
-voc_add = False
 
 if channel_secret is None:
     print('Specify LINE_CHANNEL_SECRET as environment variable.')
@@ -57,17 +58,17 @@ def callback():
 def handle_message(event):
     text = event.message.text
     if text == "単語登録":
-        voc_add = True
+#        voc_add = True
         line_bot_api.reply_message(
            event.reply_token,
             TextSendMessage(text="登録したい単語を教えて！"))
     else:
-        if voc_add:
-            voc_add = False
-            voc_list.append(text)
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=text + "を追加しました！"))
+#        if voc_add:
+#            voc_add = False
+#            voc_list.append(text)
+#            line_bot_api.reply_message(
+#                event.reply_token,
+#                TextSendMessage(text=text + "を追加しました！"))
         
         line_bot_api.reply_message(
             event.reply_token,
