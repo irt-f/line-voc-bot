@@ -88,7 +88,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     text = event.message.text
-    print(event.source['userId'])
+    print(event.source.userId)
     if text == "単語登録":
         line_bot_api.reply_message(
            event.reply_token,
