@@ -64,7 +64,8 @@ def hello_world():
     reg = User(name, email)
     db.session.add(reg)
     db.session.commit()
-    return User.query.all()
+    print(User.query.all())
+    return 'Hello World!'
 
 @app.route("/callback", methods=['POST'])
 def callback():
