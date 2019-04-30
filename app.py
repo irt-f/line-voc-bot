@@ -19,8 +19,9 @@ db = SQLAlchemy(app)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    username = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    line_id = db.Column(db.String(80), unique=True, nullable=False)
 
     def __init__(self, username, email):
         self.username = username
@@ -87,6 +88,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     text = event.message.text
+    print(event)
     if text == "単語登録":
         line_bot_api.reply_message(
            event.reply_token,
