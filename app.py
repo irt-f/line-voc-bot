@@ -23,9 +23,10 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     line_id = db.Column(db.String(80), unique=True, nullable=False)
 
-    def __init__(self, username, email):
+    def __init__(self, username, email, line_id):
         self.username = username
         self.email = email
+        self.line_id = line_id
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -88,7 +89,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     text = event.message.text
-    print(event.source.user_id)
+    line_id = event.source.user_id
     if text == "単語登録":
         line_bot_api.reply_message(
            event.reply_token,
