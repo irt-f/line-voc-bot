@@ -111,6 +111,7 @@ def handle_message(event):
     #settings = RepSetting.query.filter_by(user=u).all()
     q_r = RepSetting.query.filter_by(entry='word_registration', user=u).first()
     q_d = RepSetting.query.filter_by(entry='word_delete', user=u).first()
+    voc_size = len(Word.query.filter_by(user=u).all())
 
     if text == '単語登録':
         if q_d: 
@@ -126,17 +127,23 @@ def handle_message(event):
             TextSendMessage(text='登録したい単語を教えてね'))
     
     elif text == '単語削除':
-        if q_r: 
-            db.session.delete(q_r)
-            db.session.commit()
-        if not q_d:
-            word_delete = RepSetting(entry='word_delete', user=u)
-            db.session.add(word_delete)
-            db.session.commit()
 
-        line_bot_api.reply_message(
-           event.reply_token,
-            TextSendMessage(text='削除したい単語を教えてね'))
+        if voc_size < 1:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='単語が登録されてないよ。\nまずは『単語登録』と入力して単語を登録してね'))
+        else:
+            if q_r: 
+                db.session.delete(q_r)
+                db.session.commit()
+            if not q_d:
+                word_delete = RepSetting(entry='word_delete', user=u)
+                db.session.add(word_delete)
+                db.session.commit()
+
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='削除したい単語を教えてね'))
     
     elif text == 'テスト':
         word_list = Word.query.filter_by(user=u).all()
@@ -156,8 +163,8 @@ def handle_message(event):
     else:
         w = Word.query.filter_by(word=text, user=u).first()
 
-        if q_r != None:
-            if w == None:
+        if q_r:
+            if not w:
                 db.session.delete(q_r)
 
                 result = search_dict.search_and_get(text)
@@ -185,8 +192,8 @@ def handle_message(event):
                     event.reply_token,
                     TextSendMessage(text=text + 'はすでに単語帳に登録されています'))
 
-        elif q_d != None:
-            if w != None:
+        elif q_d:
+            if w:
                 db.session.delete(q_d)
                 db.session.delete(w)
                 db.session.commit()
