@@ -193,8 +193,8 @@ def handle_message(event):
     else:
         w = Word.query.filter_by(word=text, user=u).first()
 
-        if q_r:
-            if not w:
+        if q_r != None:
+            if w == None:
                 db.session.delete(q_r)
 
                 result = search_dict.search_and_get(text)
@@ -222,8 +222,8 @@ def handle_message(event):
                     event.reply_token,
                     TextSendMessage(text=text + 'はすでに単語帳に登録されています'))
 
-        elif q_d:
-            if w:
+        elif q_d != None:
+            if w != None:
                 db.session.delete(q_d)
                 db.session.delete(w)
                 db.session.commit()
@@ -236,7 +236,7 @@ def handle_message(event):
                     event.reply_token,
                     TextSendMessage(text=text + 'は単語帳に登録されていません'))
 
-        elif q_da:
+        elif q_da != None:
             db.session.delete(q_da)
             db.session.commit()
             if test=='はい':
