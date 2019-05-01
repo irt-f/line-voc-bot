@@ -22,9 +22,9 @@ class User(db.Model):
     username = db.Column(db.String(80), nullable=False)
     line_id = db.Column(db.String(80), unique=True, nullable=False)
 
-    def __init__(self, username, line_id):
-        self.username = username
-        self.line_id = line_id
+#    def __init__(self, username, line_id):
+#        self.username = username
+#        self.line_id = line_id
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -38,9 +38,9 @@ class RepSetting(db.Model):
     user = db.relationship('Users',
         backref=db.backref('rep_settings', lazy=True))
 
-    def __init__(self, user_id, entry):
-        self.user_id = user_id
-        self.entry = entry
+#    def __init__(self, user_id, entry):
+#        self.user_id = user_id
+#        self.entry = entry
 
     def __repr__(self):
         return '<RepSetting %r>' % (str(self.user_id) + ':' + self.entry)
