@@ -99,10 +99,15 @@ def handle_message(event):
         db.session.add(u)
         db.session.commit()
 
-    settings = RepSetting.query.filter_by(user=u).all()
+    #settings = RepSetting.query.filter_by(user=u).all()
+    q_r = RepSetting.query.filter_by(entry='word_registration', user=u).first()
+    q_d = RepSetting.query.filter_by(entry='word_delete', user=u).first()
 
     if text == '単語登録':
-        if RepSetting.query.filter_by(entry='word_registration', user=u).first() == None:
+        if q_d: 
+            db.session.delete(q_d)
+            db.session.commit()
+        if not q_r:
             word_registration = RepSetting(entry='word_registration', user=u)
             db.session.add(word_registration)
             db.session.commit()
@@ -112,7 +117,10 @@ def handle_message(event):
             TextSendMessage(text='登録したい単語を教えてね'))
     
     elif text == '単語削除':
-        if RepSetting.query.filter_by(entry='word_delete', user=u).first() == None:
+        if q_r: 
+            db.session.delete(q_r)
+            db.session.commit()
+        if not q_d:
             word_delete = RepSetting(entry='word_delete', user=u)
             db.session.add(word_delete)
             db.session.commit()
@@ -122,11 +130,11 @@ def handle_message(event):
             TextSendMessage(text='削除したい単語を教えてね'))
 
     else:
-        q = RepSetting.query.filter_by(entry='word_registration', user=u).first()
         w = Word.query.filter_by(word=text, user=u).first()
-        if q != None:
+
+        if q_r != None:
             if w == None:
-                db.session.delete(q)
+                db.session.delete(q_r)
                 w = Word(word=text, user=u)
                 db.session.add(w)
                 db.session.commit()
@@ -137,13 +145,11 @@ def handle_message(event):
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text=text + 'はすでに単語帳に登録されているよ'))
-        
-        q = RepSetting.query.filter_by(entry='word_delete', user=u).first()
-        w = Word.query.filter_by(word=text, user=u).first()
-        if q != None:
+                    TextSendMessage(text=text + 'はすでに単語帳に登録されています'))
+
+        elif q_d != None:
             if w != None:
-                db.session.delete(q)
+                db.session.delete(q_d)
                 db.session.delete(w)
                 db.session.commit()
 
@@ -153,7 +159,7 @@ def handle_message(event):
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text=text + 'は単語帳に登録されてないよ'))
+                    TextSendMessage(text=text + 'は単語帳に登録されていません'))
 
         line_bot_api.reply_message(
             event.reply_token,
