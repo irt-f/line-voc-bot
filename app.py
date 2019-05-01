@@ -29,10 +29,29 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
+class RepSetting(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    entry = db.Column(db.String(80), nullable=False)
+    flag = db.Column(db.Boolean)
+
+    user = db.relationship('Users',
+        backref=db.backref('rep_settings', lazy=True))
+
+    def __init__(self, user_id, entry):
+        self.user_id = user_id
+        self.entry = entry
+
+    def __repr__(self):
+        return '<RepSetting %r>' % (str(self.user_id) + ':' + self.entry)
+
 class Word(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    word = db.Column(db.String(120))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    word = db.Column(db.String(120), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    user = db.relationship('Users',
+        backref=db.backref('words', lazy=True))
 
     def __init__(self, word, user_id):
         self.word = word
@@ -44,7 +63,6 @@ class Word(db.Model):
 # 環境変数からchannel_secret・channel_access_tokenを取得
 channel_secret = os.environ['CHANNEL_SECRET']
 channel_access_token = os.environ['CHANNEL_ACCESS_TOKEN']
-#os.environ['CHANNEL_ACCESS_TOKEN']
 
 
 if channel_secret is None:
@@ -59,12 +77,9 @@ handler = WebhookHandler(channel_secret)
 
 @app.route("/")
 def hello_world():
-    name = 'Abe Harukasu'
-    email = 'hoge@hoge.com'
-    reg = User(name, email)
-    db.session.add(reg)
-    db.session.commit()
-    print(User.query.all())
+    #reg = User(name, email)
+    #db.session.add(reg)
+    #db.session.commit()
     return 'Hello World!'
 
 @app.route("/callback", methods=['POST'])
@@ -89,9 +104,13 @@ def handle_message(event):
     text = event.message.text
     line_id = event.source.user_id
     if text == "単語登録":
+
+        #word_registration = ReplySetting(,'word_registration')
+        #db.session.add(word_registration)
+
         line_bot_api.reply_message(
            event.reply_token,
-            TextSendMessage(text="登録したい単語を教えて！"))
+            TextSendMessage(text="登録したい単語を教えてね！"))
     else:
 #        if voc_add:
 #            voc_add = False
