@@ -1,5 +1,7 @@
 import os
 import sys
+import random
+
 from flask import Flask, request, abort
 from flask_sqlalchemy import SQLAlchemy
 
@@ -128,6 +130,21 @@ def handle_message(event):
         line_bot_api.reply_message(
            event.reply_token,
             TextSendMessage(text='削除したい単語を教えてね'))
+    
+    elif text == 'テスト':
+        word_list = Word.query.filter_by(user=u).all()
+        question_number = min(len(word_list), 10)
+        questions = random.sample(word_list, question_number)
+
+        question_text = ''
+        for i, question in enumerate(questions):
+            if i > 0: question_text += '\d'
+            question_text += '問題 %d: %s' % (i, question.word)
+        
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=question_text))
+
 
     else:
         w = Word.query.filter_by(word=text, user=u).first()
