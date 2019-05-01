@@ -138,8 +138,8 @@ def handle_message(event):
 
         question_text = ''
         for i, question in enumerate(questions):
-            if i > 0: question_text += '\d'
-            question_text += '問題 %d: %s' % (i, question.word)
+            if i > 0: question_text += '\n'
+            question_text += '問題 %d: %s' % (i+1, question.word)
         
         line_bot_api.reply_message(
             event.reply_token,
