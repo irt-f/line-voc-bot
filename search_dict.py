@@ -58,6 +58,6 @@ class SearchDict:
             'Prof': 'XHTML'
         }
 
-        meaning = search_dict.get(params2)
+        meaning = self.get(params2)
 
         return meaning
