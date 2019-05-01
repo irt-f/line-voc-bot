@@ -105,7 +105,7 @@ def handle_message(event):
 
     if text == "単語登録":
 
-        word_registration = ReplySetting(entry='word_registration',user=u)
+        word_registration = RepSetting(entry='word_registration',user=u)
         db.session.add(word_registration)
         db.session.commit()
 
