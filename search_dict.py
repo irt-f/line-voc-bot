@@ -49,11 +49,13 @@ class SearchDict:
             'PageIndex': 0
         }
 
-        result = self.search(params)[1]
+        result = self.search(params)
+        if result[0] == 0:
+            return ''
 
         params2 = {
             'Dic': 'EJdict',
-            'Item': result[0]['ItemID'],
+            'Item': result[1][0]['ItemID'],
             'Loc': '',
             'Prof': 'XHTML'
         }

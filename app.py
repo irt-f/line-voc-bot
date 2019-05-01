@@ -160,20 +160,26 @@ def handle_message(event):
             if w == None:
                 db.session.delete(q_r)
 
-                result = search_dict.search_and_get(text).split('\t')
-                lines = result[:min(3, len(result))]
-                result=''
-                for i, line in enumerate(lines):
-                    if i > 0: result += '\n'
-                    result += line
+                result = search_dict.search_and_get(text)
+                if result == '':
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=text + 'の意味を英和辞書から見つけられませんでした'))
+                else:
+                    lines = result.split('\t')
+                    lines = lines[:min(3, len(result))]
+                    result=''
+                    for i, line in enumerate(lines):
+                        if i > 0: result += '\n'
+                        result += line
 
-                w = Word(word=text, user=u, meaning=result)
-                db.session.add(w)
-                db.session.commit()
+                    w = Word(word=text, user=u, meaning=result)
+                    db.session.add(w)
+                    db.session.commit()
 
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextSendMessage(text='単語名\n%s\n\n意味\n%s\n\nを単語帳に追加しました！' % (text, result)))
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text='単語名\n%s\n\n意味\n%s\n\nを単語帳に追加しました！' % (text, result)))
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
