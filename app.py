@@ -22,25 +22,17 @@ class User(db.Model):
     username = db.Column(db.String(80), nullable=False)
     line_id = db.Column(db.String(80), unique=True, nullable=False)
 
-#    def __init__(self, username, line_id):
-#        self.username = username
-#        self.line_id = line_id
-
     def __repr__(self):
         return '<User %r>' % self.username
 
 class RepSetting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     entry = db.Column(db.String(80), nullable=False)
     flag = db.Column(db.Boolean)
 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User',
         backref=db.backref('rep_settings', lazy=True))
-
-#    def __init__(self, user_id, entry):
-#        self.user_id = user_id
-#        self.entry = entry
 
     def __repr__(self):
         return '<RepSetting %r>' % (str(self.user_id) + ':' + self.entry)
@@ -48,8 +40,8 @@ class RepSetting(db.Model):
 class Word(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(120), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User',
         backref=db.backref('words', lazy=True))
 
@@ -103,10 +95,19 @@ def callback():
 def handle_message(event):
     text = event.message.text
     line_id = event.source.user_id
+    profile = line_bot_api.get_profile(line_id)
+
+    u = User.query.filter_by(line_id=line_id).first()
+    if u == None:
+        u = User(username=profile.display_name, line_id=line_id)
+        db.session.add(u)
+        db.session.commit()
+
     if text == "単語登録":
 
-        #word_registration = ReplySetting(,'word_registration')
-        #db.session.add(word_registration)
+        word_registration = ReplySetting(entry='word_registration',user=u)
+        db.session.add(word_registration)
+        db.session.commit()
 
         line_bot_api.reply_message(
            event.reply_token,
