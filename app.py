@@ -97,11 +97,13 @@ def handle_message(event):
     if u == None:
         u = User(username=profile.display_name, line_id=line_id)
         db.session.add(u)
+        db.session.commit()
 
     if text == "単語登録":
 
         word_registration = RepSetting(entry='word_registration', user=u)
         db.session.add(word_registration)
+        db.session.commit()
 
         line_bot_api.reply_message(
            event.reply_token,
@@ -112,6 +114,8 @@ def handle_message(event):
             db.session.delete(q)
             w = Word(word=text, user=u)
             db.session.add(w)
+            db.session.commit()
+
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=text + "を単語帳に追加しました！"))
@@ -120,7 +124,7 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage(text=event.message.text))
     
-    db.session.commit()
+    
 
 if __name__ == "__main__":
     app.run()
