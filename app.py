@@ -35,7 +35,7 @@ class RepSetting(db.Model):
     entry = db.Column(db.String(80), nullable=False)
     flag = db.Column(db.Boolean)
 
-    user = db.relationship('Users',
+    user = db.relationship('User',
         backref=db.backref('rep_settings', lazy=True))
 
 #    def __init__(self, user_id, entry):
@@ -50,7 +50,7 @@ class Word(db.Model):
     word = db.Column(db.String(120), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    user = db.relationship('Users',
+    user = db.relationship('User',
         backref=db.backref('words', lazy=True))
 
     def __init__(self, word, user_id):
