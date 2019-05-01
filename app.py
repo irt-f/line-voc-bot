@@ -20,12 +20,10 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
     line_id = db.Column(db.String(80), unique=True, nullable=False)
 
-    def __init__(self, username, email, line_id):
+    def __init__(self, username, line_id):
         self.username = username
-        self.email = email
         self.line_id = line_id
 
     def __repr__(self):
