@@ -99,17 +99,30 @@ def handle_message(event):
         db.session.add(u)
         db.session.commit()
 
-    if text == "単語登録":
+    settings = RepSetting.query.filter_by(user=u).all()
 
-        word_registration = RepSetting(entry='word_registration', user=u)
-        db.session.add(word_registration)
-        db.session.commit()
+    if text == '単語登録':
+        if RepSetting.query.filter_by(entry='word_registration', user=u).first() == None:
+            word_registration = RepSetting(entry='word_registration', user=u)
+            db.session.add(word_registration)
+            db.session.commit()
 
         line_bot_api.reply_message(
            event.reply_token,
-            TextSendMessage(text="登録したい単語を教えてね！"))
+            TextSendMessage(text='登録したい単語を教えてね！'))
+    
+    elif text == '単語削除':
+        if RepSetting.query.filter_by(entry='word_delete', user=u).first() == None:
+            word_delete = RepSetting(entry='word_delete', user=u)
+            db.session.add(word_delete)
+            db.session.commit()
+
+        line_bot_api.reply_message(
+           event.reply_token,
+            TextSendMessage(text='削除したい単語を教えてね！'))
+
     else:
-        q = RepSetting.query.filter_by(entry='word_registration', user_id=u.id).first()
+        q = RepSetting.query.filter_by(entry='word_registration', user=u).first()
         if q != None:
             db.session.delete(q)
             w = Word(word=text, user=u)
@@ -120,6 +133,17 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(text=text + "を単語帳に追加しました！"))
         
+        q = RepSetting.query.filter_by(entry='word_delete', user=u).first()
+        w = Word.query.filter_by(word=text, user=u).first()
+        if q != None and w != None:
+            db.session.delete(q)
+            db.session.delete(w)
+            db.session.commit()
+
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=text + "を単語帳から削除しました！"))
+
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=event.message.text))
