@@ -111,7 +111,9 @@ def handle_message(event):
     #settings = RepSetting.query.filter_by(user=u).all()
     q_r = RepSetting.query.filter_by(entry='word_registration', user=u).first()
     q_d = RepSetting.query.filter_by(entry='word_delete', user=u).first()
-    voc_size = len(Word.query.filter_by(user=u).all())
+    q_da = RepSetting.query.filter_by(entry='word_delete_all', user=u).first()
+    voc = Word.query.filter_by(user=u).all()
+    voc_size = len(voc)
 
     if text == '単語登録':
         if q_d: 
@@ -131,7 +133,7 @@ def handle_message(event):
         if voc_size < 1:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='単語が登録されてないよ。\nまずは『単語登録』と入力して単語を登録してね'))
+                TextSendMessage(text='単語が登録されてないよ\nまずは『単語登録』と入力して単語を登録してね'))
         else:
             if q_r: 
                 db.session.delete(q_r)
@@ -144,6 +146,28 @@ def handle_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='削除したい単語を教えてね'))
+    
+    elif ext == '単語全削除':
+
+        if voc_size < 1:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='単語が登録されてないよ\nまずは『単語登録』と入力して単語を登録してね'))
+        else:
+            if q_r: 
+                db.session.delete(q_r)
+                db.session.commit()
+            if q_d:
+                db.session.delete(q_d)
+                db.session.commit()
+            if not q_da:
+                word_delete_all = RepSetting(entry='word_delete_all', user=u)
+                db.session.add(word_delete_all)
+                db.session.commit()
+
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='一旦すべての単語を削除すると元に戻せないよ\n本当に削除しますか？[はい/いいえ]'))
     
     elif text == 'テスト':
         word_list = Word.query.filter_by(user=u).all()
@@ -200,15 +224,32 @@ def handle_message(event):
 
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text=text + 'を単語帳から削除しました！'))
+                    TextSendMessage(text=text + 'を単語帳から削除しました'))
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text=text + 'は単語帳に登録されていません'))
 
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=event.message.text))
+        elif q_da:
+            db.session.delete(q_da)
+            db.session.commit()
+            if test=='はい':
+                for v in voc:
+                    db.session.delete(v)
+                db.session.commit()
+
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='すべての単語を単語帳から削除しました'))
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='全削除をキャンセルしました'))
+
+        else:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=event.message.text))
     
     
 
