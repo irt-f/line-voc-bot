@@ -42,8 +42,8 @@ class Word(db.Model):
         return '<Word %r>' % self.word
 
 # 環境変数からchannel_secret・channel_access_tokenを取得
-channel_secret = 'f0c75eb6d5f5d8775ac3a4c4c1e5d1b5'
-channel_access_token = 'PEtbobZiK/ek6VlUsdkhYdbvEDWgx6VZmkDJUS8oaszqOPm0MbFYVz6uCvbD8U8A3FBK7fx73Zqx3xbWKPR71cIUb/aIcPbzZDT3TxnYf2AR3gDryB36Oza47XzwrTwRzoSfbVSjiP3WSvXf+jT38AdB04t89/1O/w1cDnyilFU='
+channel_secret = os.environ['CHANNEL_SECRET']
+channel_access_token = os.environ['CHANNEL_ACCESS_TOKEN']
 #os.environ['CHANNEL_ACCESS_TOKEN']
 
 
