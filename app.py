@@ -63,21 +63,21 @@ if channel_access_token is None:
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
 
-@app.route("/")
+@app.route('/')
 def hello_world():
     #reg = User(name, email)
     #db.session.add(reg)
     #db.session.commit()
     return 'Hello World!'
 
-@app.route("/callback", methods=['POST'])
+@app.route('/callback', methods=['POST'])
 def callback():
     # get X-Line-Signature header value
     signature = request.headers['X-Line-Signature']
 
     # get request body as text
     body = request.get_data(as_text=True)
-    app.logger.info("Request body: " + body)
+    app.logger.info('Request body: ' + body)
 
     # handle webhook body
     try:
@@ -109,7 +109,7 @@ def handle_message(event):
 
         line_bot_api.reply_message(
            event.reply_token,
-            TextSendMessage(text='登録したい単語を教えてね！'))
+            TextSendMessage(text='登録したい単語を教えてね'))
     
     elif text == '単語削除':
         if RepSetting.query.filter_by(entry='word_delete', user=u).first() == None:
@@ -119,30 +119,41 @@ def handle_message(event):
 
         line_bot_api.reply_message(
            event.reply_token,
-            TextSendMessage(text='削除したい単語を教えてね！'))
+            TextSendMessage(text='削除したい単語を教えてね'))
 
     else:
         q = RepSetting.query.filter_by(entry='word_registration', user=u).first()
+        w = Word.query.filter_by(word=text, user=u).first()
         if q != None:
-            db.session.delete(q)
-            w = Word(word=text, user=u)
-            db.session.add(w)
-            db.session.commit()
+            if w == None:
+                db.session.delete(q)
+                w = Word(word=text, user=u)
+                db.session.add(w)
+                db.session.commit()
 
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=text + "を単語帳に追加しました！"))
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text=text + 'を単語帳に追加しました！'))
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text=text + 'はすでに単語帳に登録されているよ'))
         
         q = RepSetting.query.filter_by(entry='word_delete', user=u).first()
         w = Word.query.filter_by(word=text, user=u).first()
-        if q != None and w != None:
-            db.session.delete(q)
-            db.session.delete(w)
-            db.session.commit()
+        if q != None:
+            if w != None:
+                db.session.delete(q)
+                db.session.delete(w)
+                db.session.commit()
 
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=text + "を単語帳から削除しました！"))
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text=text + 'を単語帳から削除しました！'))
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text=text + 'は単語帳に登録されてないよ'))
 
         line_bot_api.reply_message(
             event.reply_token,
