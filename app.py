@@ -173,7 +173,7 @@ def handle_message(event):
 
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text='単語名%s\n意味%s\nを単語帳に追加しました！' % (text, result)))
+                    TextSendMessage(text='単語名\n%s\n\n意味\n%s\n\nを単語帳に追加しました！' % (text, result)))
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
