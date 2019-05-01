@@ -147,7 +147,7 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(text='削除したい単語を教えてね'))
     
-    elif ext == '単語全削除':
+    elif text == '単語全削除':
 
         if voc_size < 1:
             line_bot_api.reply_message(
@@ -239,7 +239,7 @@ def handle_message(event):
         elif q_da != None:
             db.session.delete(q_da)
             db.session.commit()
-            if test=='はい':
+            if text=='はい':
                 for v in voc:
                     db.session.delete(v)
                 db.session.commit()
