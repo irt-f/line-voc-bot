@@ -41,7 +41,7 @@ class Word(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(120), nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User',
         backref=db.backref('words', lazy=True))
     
