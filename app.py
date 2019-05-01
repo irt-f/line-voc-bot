@@ -44,10 +44,6 @@ class Word(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User',
         backref=db.backref('words', lazy=True))
-
-    def __init__(self, word, user_id):
-        self.word = word
-        self.user_id = user_id
     
     def __repr__(self):
         return '<Word %r>' % self.word
