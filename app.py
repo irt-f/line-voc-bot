@@ -15,6 +15,8 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
 )
 
+from search_dict import SearchDict
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
@@ -42,6 +44,7 @@ class RepSetting(db.Model):
 class Word(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(120), nullable=False)
+    meaning = db.Column(db.Text, nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User',
@@ -64,6 +67,10 @@ if channel_access_token is None:
 
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+
+search_dict = SearchDict(
+    search_url='http://public.dejizo.jp/NetDicV09.asmx/SearchDicItemLite',
+    get_url='http://public.dejizo.jp/NetDicV09.asmx/GetDicItemLite')
 
 @app.route('/')
 def hello_world():
@@ -139,7 +146,7 @@ def handle_message(event):
         question_text = ''
         for i, question in enumerate(questions):
             if i > 0: question_text += '\n'
-            question_text += 'Q. %02d   %s' % (i+1, question.word)
+            question_text += 'Q %02d   %s' % (i+1, question.word)
         
         line_bot_api.reply_message(
             event.reply_token,
@@ -152,7 +159,14 @@ def handle_message(event):
         if q_r != None:
             if w == None:
                 db.session.delete(q_r)
-                w = Word(word=text, user=u)
+
+                result = search_dict.search_and_get(text).split('\t')
+                lines = result[:min(3, len(result))]
+                result=''
+                for line in lines:
+                    result += line
+
+                w = Word(word=text, user=u, meaning=result)
                 db.session.add(w)
                 db.session.commit()
 
