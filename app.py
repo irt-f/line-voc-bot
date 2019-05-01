@@ -163,7 +163,8 @@ def handle_message(event):
                 result = search_dict.search_and_get(text).split('\t')
                 lines = result[:min(3, len(result))]
                 result=''
-                for line in lines:
+                for i, line in enumerate(lines):
+                    if i > 0: result += '\n'
                     result += line
 
                 w = Word(word=text, user=u, meaning=result)
@@ -172,7 +173,7 @@ def handle_message(event):
 
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text=text + 'を単語帳に追加しました！'))
+                    TextSendMessage(text='単語名%s\n意味%s\nを単語帳に追加しました！' % (text, result)))
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
