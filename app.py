@@ -171,17 +171,23 @@ def handle_message(event):
     
     elif text == 'テスト':
         word_list = Word.query.filter_by(user=u).all()
-        question_number = min(len(word_list), 10)
-        questions = random.sample(word_list, question_number)
+        size = len(word_list)
+        if size == 0:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='単語が登録されてないよ\nまずは『単語登録』と入力して単語を登録してね'))
+        else:
+            question_number = min(size, 10)
+            questions = random.sample(word_list, question_number)
 
-        question_text = ''
-        for i, question in enumerate(questions):
-            if i > 0: question_text += '\n'
-            question_text += 'Q %02d   %s' % (i+1, question.word)
+            question_text = ''
+            for i, question in enumerate(questions):
+                if i > 0: question_text += '\n'
+                question_text += 'Q %02d   %s' % (i+1, question.word)
         
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=question_text))
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=question_text))
 
 
     else:
