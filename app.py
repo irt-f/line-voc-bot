@@ -126,7 +126,7 @@ def handle_message(event):
 
         line_bot_api.reply_message(
            event.reply_token,
-            TextSendMessage(text='登録したい単語を教えてね'))
+            TextSendMessage(text='登録したい単語を教えてね\n（『キャンセル』と入力すると登録をキャンセルできます）'))
     
     elif text == '単語削除':
 
@@ -145,7 +145,7 @@ def handle_message(event):
 
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='削除したい単語を教えてね'))
+                TextSendMessage(text='削除したい単語を教えてね\n（『キャンセル』と入力すると削除をキャンセルできます）'))
     
     elif text == '単語全削除':
 
@@ -194,7 +194,13 @@ def handle_message(event):
         w = Word.query.filter_by(word=text, user=u).first()
 
         if q_r != None:
-            if w == None:
+            if text == 'キャンセル':
+                db.session.delete(q_r)
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='単語帳への登録をキャンセルしました'))
+
+            elif w == None:
                 db.session.delete(q_r)
 
                 result = search_dict.search_and_get(text)
@@ -223,7 +229,12 @@ def handle_message(event):
                     TextSendMessage(text=text + 'はすでに単語帳に登録されています'))
 
         elif q_d != None:
-            if w != None:
+            if text == 'キャンセル':
+                db.session.delete(q_d)
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='単語帳からの削除をキャンセルしました'))
+            elif w != None:
                 db.session.delete(q_d)
                 db.session.delete(w)
                 db.session.commit()
