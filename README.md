@@ -7,4 +7,4 @@
 - テストの出題
 
 ## 使用技術
-Python3, flask, PostgreSQL, SQLAlchemy, Herokuなど
+Python3, Flask, PostgreSQL, SQLAlchemy, Herokuなど
