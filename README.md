@@ -5,3 +5,6 @@
 - 英単語の登録・削除
 - 英単語の意味をデ辞蔵Webサービス （https://www.est.co.jp/dev/dict/rest） から取得
 - テストの出題
+
+## 使用技術
+Python3, flask, PostgreSQL, SQLAlchemy, Herokuなど
