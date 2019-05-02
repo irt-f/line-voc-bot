@@ -202,13 +202,14 @@ def handle_message(event):
                     TextSendMessage(text='単語帳への登録をキャンセルしました'))
 
             elif w == None:
+                T = TextSendMessage(text='登録したい単語を教えてね\n（『キャンセル』と入力すると登録をキャンセルできます）')
                 db.session.delete(q_r)
 
                 result = search_dict.search_and_get(text)
                 if result == '':
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextSendMessage(text=text + 'の意味を英和辞書から見つけられませんでした'))
+                        [TextSendMessage(text=text + 'の意味を英和辞書から見つけられませんでした'), T])
                 else:
                     lines = result.split('\t')
                     lines = lines[:min(3, len(result))]
