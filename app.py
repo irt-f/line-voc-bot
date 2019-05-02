@@ -181,10 +181,10 @@ def handle_message(event):
             question_number = min(size, 10)
             questions = random.sample(word_list, question_number)
 
-            question_text = ''
+            question_text = '🇺🇸英単語テスト🇬🇧'
             for i, question in enumerate(questions):
-                if i > 0: question_text += '\n'
-                question_text += 'Q %02d   %s' % (i+1, question.word)
+                question_text += '\n'
+                question_text += ' Q%d   %s' % (i+1, question.word)
         
             line_bot_api.reply_message(
                 event.reply_token,
