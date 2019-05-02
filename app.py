@@ -196,6 +196,7 @@ def handle_message(event):
         if q_r != None:
             if text == 'キャンセル':
                 db.session.delete(q_r)
+                db.session.commit()
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='単語帳への登録をキャンセルしました'))
@@ -231,6 +232,7 @@ def handle_message(event):
         elif q_d != None:
             if text == 'キャンセル':
                 db.session.delete(q_d)
+                db.session.commit()
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='単語帳からの削除をキャンセルしました'))
