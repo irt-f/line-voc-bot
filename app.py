@@ -194,6 +194,7 @@ def handle_message(event):
         w = Word.query.filter_by(word=text, user=u).first()
 
         if q_r != None:
+            T = TextSendMessage(text='登録したい単語を教えてね\n（『キャンセル』と入力すると登録をキャンセルできます）')
             if text == 'キャンセル':
                 db.session.delete(q_r)
                 db.session.commit()
@@ -202,8 +203,6 @@ def handle_message(event):
                     TextSendMessage(text='単語帳への登録をキャンセルしました'))
 
             elif w == None:
-                T = TextSendMessage(text='登録したい単語を教えてね\n（『キャンセル』と入力すると登録をキャンセルできます）')
-                db.session.delete(q_r)
 
                 result = search_dict.search_and_get(text)
                 if result == '':
@@ -224,13 +223,14 @@ def handle_message(event):
 
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextSendMessage(text='単語名\n%s\n\n意味\n%s\n\nを単語帳に追加しました！' % (text, result)))
+                        [TextSendMessage(text='単語名\n%s\n\n意味\n%s\n\nを単語帳に追加しました！' % (text, result)), T])
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text=text + 'はすでに単語帳に登録されています'))
+                    [TextSendMessage(text=text + 'はすでに単語帳に登録されています'), T])
 
         elif q_d != None:
+            T = TextSendMessage(text='削除したい単語を教えてね\n（『キャンセル』と入力すると削除をキャンセルできます）')
             if text == 'キャンセル':
                 db.session.delete(q_d)
                 db.session.commit()
@@ -238,17 +238,16 @@ def handle_message(event):
                     event.reply_token,
                     TextSendMessage(text='単語帳からの削除をキャンセルしました'))
             elif w != None:
-                db.session.delete(q_d)
                 db.session.delete(w)
                 db.session.commit()
 
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text=text + 'を単語帳から削除しました'))
+                    [TextSendMessage(text=text + 'を単語帳から削除しました'), T])
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text=text + 'は単語帳に登録されていません'))
+                    [TextSendMessage(text=text + 'は単語帳に登録されていません'), T])
 
         elif q_da != None:
             db.session.delete(q_da)
