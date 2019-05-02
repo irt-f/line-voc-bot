@@ -14,13 +14,14 @@ from linebot.exceptions import (
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
 )
-
 from search_dict import SearchDict
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
+# データベース
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False)
@@ -53,10 +54,10 @@ class Word(db.Model):
     def __repr__(self):
         return '<Word %r>' % self.word
 
+
 # 環境変数からchannel_secret・channel_access_tokenを取得
 channel_secret = os.environ['CHANNEL_SECRET']
 channel_access_token = os.environ['CHANNEL_ACCESS_TOKEN']
-
 
 if channel_secret is None:
     print('Specify LINE_CHANNEL_SECRET as environment variable.')
@@ -68,9 +69,12 @@ if channel_access_token is None:
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
 
+# 単語の意味の検索用
 search_dict = SearchDict(
     search_url='http://public.dejizo.jp/NetDicV09.asmx/SearchDicItemLite',
     get_url='http://public.dejizo.jp/NetDicV09.asmx/GetDicItemLite')
+
+
 
 @app.route('/')
 def reject():
@@ -105,7 +109,7 @@ def handle_message(event):
         db.session.add(u)
         db.session.commit()
 
-    #settings = RepSetting.query.filter_by(user=u).all()
+
     q_r = RepSetting.query.filter_by(entry='word_registration', user=u).first()
     q_d = RepSetting.query.filter_by(entry='word_delete', user=u).first()
     q_da = RepSetting.query.filter_by(entry='word_delete_all', user=u).first()
