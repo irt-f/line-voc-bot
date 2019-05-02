@@ -73,11 +73,8 @@ search_dict = SearchDict(
     get_url='http://public.dejizo.jp/NetDicV09.asmx/GetDicItemLite')
 
 @app.route('/')
-def hello_world():
-    #reg = User(name, email)
-    #db.session.add(reg)
-    #db.session.commit()
-    return 'Hello World!'
+def reject():
+    abort(404)
 
 @app.route('/callback', methods=['POST'])
 def callback():
@@ -208,7 +205,7 @@ def handle_message(event):
                 if result == '':
                     line_bot_api.reply_message(
                         event.reply_token,
-                        [TextSendMessage(text=text + 'の意味を英和辞書から見つけられませんでした'), T])
+                        [TextSendMessage(text='「%s」の意味を英和辞書から見つけられませんでした'%text), T])
                 else:
                     lines = result.split('\t')
                     lines = lines[:min(3, len(result))]
