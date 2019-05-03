@@ -8,3 +8,7 @@
 
 ## 使用技術
 Python3, Flask, PostgreSQL, SQLAlchemy, Herokuなど
+
+## Screenshots
+![screenshot1](/screenshots/sc1.jpg)
+![screenshot2](/screenshots/sc2.jpg)
