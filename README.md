@@ -1,6 +1,6 @@
 # LINE英単語テストbot
 
-英単語の暗記に役立つLINE botです。次の機能を実装しています。
+英単語の暗記を支援するLINE botです。次の機能を実装しています。
 
 - 英単語の登録・削除
 - 英単語の意味をデ辞蔵Webサービス （https://www.est.co.jp/dev/dict/rest） から取得
